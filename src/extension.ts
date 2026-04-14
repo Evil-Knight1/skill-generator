@@ -13,8 +13,7 @@ export function activate(context: vscode.ExtensionContext) {
 		provider,
 		{ webviewOptions: { retainContextWhenHidden: true } }
 	);
-	5 +
-		context.subscriptions.push(viewProvider);
+	context.subscriptions.push(viewProvider);
 
 	// Command to focus the sidebar
 	const focusCommand = vscode.commands.registerCommand('agent-skills.generateFromUrl', () => {

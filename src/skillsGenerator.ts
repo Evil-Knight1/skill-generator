@@ -2,6 +2,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs/promises';
+import * as os from 'os';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import TurndownService from 'turndown';
@@ -11,6 +12,7 @@ export interface GenerateOptions {
     flatStructure: boolean;
     crawlDependencies?: boolean;
     renameFile?: string;
+    scope: 'project' | 'global';
     rules?: Array<{
         urlPattern: string;
         subpaths: boolean;
@@ -68,19 +70,28 @@ export class SkillsGenerator {
         token?: vscode.CancellationToken
     ): Promise<{ folderPath: string; skillName: string }> {
         const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-        if (!workspaceFolder) throw new Error('Please open a workspace folder first');
+        
+        let baseOutput: string;
+        if (options.scope === 'global') {
+            baseOutput = path.join(os.homedir(), '.gemini', 'antigravity', 'skills');
+        } else {
+            if (!workspaceFolder) throw new Error('Please open a workspace folder first for Project scope');
+            baseOutput = path.join(workspaceFolder.uri.fsPath, options.outputDir);
+        }
 
-        const baseOutput = path.join(workspaceFolder.uri.fsPath, options.outputDir);
         await fs.mkdir(baseOutput, { recursive: true });
 
-        // Load DB
-        const dbPath = path.join(baseOutput, '.crawled_db.json');
+        // Load shared DB in the global antigravity folder
+        const globalMetaDir = path.join(os.homedir(), '.gemini', 'antigravity');
+        await fs.mkdir(globalMetaDir, { recursive: true });
+        const dbPath = path.join(globalMetaDir, '.crawled_db.json');
+
         let previouslyCrawled: string[] = [];
         try {
             const dbContent = await fs.readFile(dbPath, 'utf8');
             previouslyCrawled = JSON.parse(dbContent);
         } catch (e) {
-            // No DB file yet, which is fine
+            // No DB file yet
         }
         
         onProgress?.(`Fetching main page: ${baseUrl}`);

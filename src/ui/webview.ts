@@ -155,6 +155,7 @@ export function showSkillsGeneratorPanel(context: vscode.ExtensionContext) {
                 outputDir: msg.data.outputDir,
                 flatStructure: msg.data.flatStructure,
                 renameFile: msg.data.renameFile,
+                scope: msg.data.scope || 'project',
                 rules: msg.data.rules
             };
 

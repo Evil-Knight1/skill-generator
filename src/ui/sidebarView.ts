@@ -21,6 +21,7 @@ export class SkillsSidebarProvider implements vscode.WebviewViewProvider {
                     flatStructure: msg.data.flatStructure,
                     crawlDependencies: msg.data.crawlDependencies,
                     renameFile: msg.data.renameFile,
+                    scope: msg.data.scope || 'project',
                     rules: msg.data.rules
                 };
 
@@ -126,10 +127,19 @@ export class SkillsSidebarProvider implements vscode.WebviewViewProvider {
                     <button onclick="exportSettings()" title="Export" class="text-xs bg-[#3b3b3b] hover:bg-[#505050] text-[#cccccc] px-2 py-1 rounded">📤</button>
                 </div>
             </div>
+            
+            <div class="mb-4">
+                <label class="block text-xs font-medium text-[#cccccc] mb-2 uppercase tracking-tight">Target Scope</label>
+                <div class="flex bg-[#1e1e1e] rounded p-1 border border-[#3c3c3c]">
+                    <button onclick="setScope('project')" id="scopeProject" class="flex-1 py-1 text-[10px] font-bold rounded bg-[#007acc] text-white">PROJECT</button>
+                    <button onclick="setScope('global')" id="scopeGlobal" class="flex-1 py-1 text-[10px] font-bold rounded text-gray-400 hover:text-white">GLOBAL</button>
+                </div>
+                <div id="scopeInfo" class="mt-1.5 text-[9px] text-gray-500 italic px-1">Saving to: Current Workspace</div>
+            </div>
+
             <div class="space-y-3 mt-2">
-                <div>
+                <div id="dirContainer">
                     <label class="block text-xs font-medium text-[#cccccc] mb-1">Output Directory</label>
-                    <!-- Fixed: Added type="text" -->
                     <input id="outputDir" type="text" value=".agents/skills" class="w-full rounded px-2 py-1.5 text-xs">
                 </div>
                 <div>
@@ -143,7 +153,7 @@ export class SkillsSidebarProvider implements vscode.WebviewViewProvider {
                     </div>
                     <div class="flex items-center gap-2">
                         <input type="checkbox" id="crawlDeps" class="w-4 h-4 accent-[#007acc]">
-                        <label for="crawlDeps" class="text-xs text-blue-200">Crawl Dependencies (NPM/Pub/Go) → Single File</label>
+                        <label for="crawlDeps" class="text-xs text-blue-200">Crawl Dependencies (NPM/Pub/Go)</label>
                     </div>
                 </div>
             </div>
@@ -189,6 +199,32 @@ export class SkillsSidebarProvider implements vscode.WebviewViewProvider {
     <script>
         const vscode = acquireVsCodeApi();
         let ruleId = 1;
+        let currentScope = 'project';
+
+        function setScope(scope) {
+            currentScope = scope;
+            const projectBtn = document.getElementById('scopeProject');
+            const globalBtn = document.getElementById('scopeGlobal');
+            const info = document.getElementById('scopeInfo');
+            const dirContainer = document.getElementById('dirContainer');
+
+            if (scope === 'project') {
+                projectBtn.classList.add('bg-[#007acc]', 'text-white');
+                projectBtn.classList.remove('text-gray-400', 'hover:text-white');
+                globalBtn.classList.remove('bg-[#007acc]', 'text-white');
+                globalBtn.classList.add('text-gray-400', 'hover:text-white');
+                info.innerText = 'Saving to: Current Workspace';
+                dirContainer.classList.remove('opacity-50', 'pointer-events-none');
+            } else {
+                globalBtn.classList.add('bg-[#007acc]', 'text-white');
+                globalBtn.classList.remove('text-gray-400', 'hover:text-white');
+                projectBtn.classList.remove('bg-[#007acc]', 'text-white');
+                projectBtn.classList.add('text-gray-400', 'hover:text-white');
+                info.innerText = 'Saving to: ~/.gemini/antigravity/skills/';
+                // Disable output dir for global as it's fixed
+                dirContainer.classList.add('opacity-50', 'pointer-events-none');
+            }
+        }
 
         function addRule() {
             const container = document.getElementById('rulesContainer');
@@ -241,6 +277,7 @@ export class SkillsSidebarProvider implements vscode.WebviewViewProvider {
                 flatStructure: document.getElementById('flatStructure').checked,
                 crawlDependencies: document.getElementById('crawlDeps').checked,
                 renameFile: document.getElementById('renameFile').value,
+                scope: currentScope,
                 rules: rules
             };
 
