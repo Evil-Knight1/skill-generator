@@ -1,0 +1,62 @@
+{
+  "name": "agent-skills",
+  "displayName": "Agent Skills: Skills Generator",
+  "description": "Generate ready-to-use AI skills from documentation URLs (Flutter, Pub.dev, etc.)",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "agent-skills.generateFromUrl",
+        "title": "Agent Skills: Generate from URL",
+        "category": "Agent Skills"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "agentSkills",
+          "title": "Skills Generator",
+          "icon": "$(sparkle)"
+        }
+      ]
+    },
+    "views": {
+      "agentSkills": [
+        {
+          "id": "agentSkills.sidebar",
+          "name": "Skills Generator",
+          "type": "webview"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "test": "tsc -p ./ && vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.39",
+    "@types/vscode": "^1.85.0",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.3.3",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "cheerio": "^1.0.0-rc.12",
+    "turndown": "^7.1.3"
+  }
+}
