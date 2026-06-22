@@ -228,7 +228,7 @@ https://docs.flutter.dev
 # 📸 Screenshots
 
 <p align="center">
-  <img src="assets/screenshots/extension_ui.png" width="300"/>
+  <img src="extension_ui.png" width="300"/>
 </p>
 
 ---
